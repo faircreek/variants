@@ -1,0 +1,40 @@
+:mode 644
+:user  1000
+:group root
+; --------------------------------------------------------------
+; resolv.conf -- DNS Resolver Config File -- for toupper(hostname())
+; --------------------------------------------------------------
+;
+; THIS FILE IS AUTO GEN FROM /etc/Variants/resolv.conf.V_Source
+;
+; DO NOT EDIT LOCALLY ON toupper(__HOSTNAME__)
+;
+; --------------------------------------------------------------
+;
+;
+:if network(10.102/16) || network(10.176/16) || network(10.178/16)
+domain acme.com
+search acme.com
+:elif network(192.168.0/24) || network(10.10/16)
+domain dmz.acme.com
+search dmz.acme.com
+:endif
+
+:if network(10.102/16) 
+nameserver 10.103.248.1
+nameserver 10.101.248.1
+nameserver 10.176.248.1
+:elif network(10.176/16)
+nameserver 10.176.248.1
+nameserver 10.103.248.1
+nameserver 10.101.248.1
+:elif network(192.168.0/24)
+nameserver 192.168.0.111
+nameserver 192.168.0.141
+nameserver 192.168.0.112
+nameserver 192.168.0.140
+:else
+;No Name server
+:endif
+attempts:1
+timeout:2

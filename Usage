@@ -1,0 +1,24 @@
+If you running a debian type install do a
+apt-get install filepp
+
+Other systems get filepp from
+http://www-users.york.ac.uk/~dm26/filepp/
+
+
+Download variants from the git repo
+
+https://github.com/faircreek/variants/archive/master.zip
+
+Unpack in your current working dir and now you can run
+
+filepp -m function.pm -m variants.pm resolv.conf.V_Source
+filepp -m function.pm -m variants.pm resolv.conf.V_Source2
+do a chmod 755 on filepp.alt
+Fix line 60 so you have the right path to filepp std modules
+Now you can run 
+./filepp.alt -m function.pm -m variants.pm resolv.conf.V_Source3
+
+The alt filepp is using an other default maker than # 
+It also modified so you can mark gid,uid and mode in the file
+just as in resolv.conf.V_Source3. Most of the code is there
+but not all. 

@@ -1,0 +1,104 @@
+Variants for Variations of computer configuration files
+
+Note: Proof of concept code!
+
+While I did write a large scale SCM tool (NDD) way back 
+and I still maintain it. It unfortunately contain some 
+proprietary code making it hard to release as FOSS.
+
+What strike me is that nearly all SCM tools released
+are either overly simplistic and there by don't cut the
+mustard or are very arcane in the way they are handling
+configuration files. Note: It's not like tools like 
+cfengine, chef, puppet, ansible etc are bad as SCM tools,
+they each have distinct advantages. However they aren't
+very easy to learn nor to understand if you start as a 
+new sysadmin at some company using them. E.g. even for an 
+experienced puppet admin it will take some time to see
+how the configuration is stitched together.
+
+(See simple.png for a compare between, config files under
+variants, cfengine and puppet). It has to be noted that
+ansible come close, it's to large extent pretty easy
+to understand even if it could be even better in
+this regards.
+
+While you have simple variations in configuration files
+where they are common to the host, sub-domain, domain, 
+group and so on. Those files are easy to deal with in a
+SCM tool. However that type of SCM often grow out of hand,
+there will be many different files to keep track of and
+to configure. 
+
+What you need is a sort of template, but a template that
+has some power not just simple variable substitution. This
+is what I call a Variant_Source, its a source code of a 
+template which is parsed at installation time. 
+
+If you look at one:
+$> cat resolv.conf.V_Source
+; --------------------------------------------------------------
+; resolv.conf -- DNS Resolver Config File -- for toupper(hostname())
+; --------------------------------------------------------------
+;
+; THIS FILE IS AUTO GEN FROM /etc/Variants/resolv.conf.V_Source
+;
+; DO NOT EDIT LOCALLY ON toupper(__HOSTNAME__)
+;
+; --------------------------------------------------------------
+;
+;
+:if network(10.102/16) || network(10.176/16) || network(10.178/16)
+domain acme.com
+search acme.com
+:elif network(192.168.0/24) || network(10.10/16)
+domain dmz.acme.com
+search dmz.acme.com
+:endif
+
+:if network(10.102/16) 
+nameserver 10.103.248.1
+nameserver 10.101.248.1
+nameserver 10.176.248.1
+:elif network(10.176/16)
+nameserver 10.176.248.1
+nameserver 10.103.248.1
+nameserver 10.101.248.1
+:elif network(192.168.0/24)
+nameserver 192.168.0.111
+nameserver 192.168.0.141
+nameserver 192.168.0.112
+nameserver 192.168.0.140
+:else
+;No Name server
+:endif
+attempts:1
+timeout:2
+
+* You can easily see that it will result in the below when 
+installed on a host in the 192.168.0 network.
+
+; --------------------------------------------------------------
+; resolv.conf -- DNS Resolver Config File -- for BAMSE
+; --------------------------------------------------------------
+;
+; THIS FILE IS AUTO GEN FROM /etc/Variants/resolv.conf.V_Source
+;
+; DO NOT EDIT LOCALLY ON BAMSE
+;
+; --------------------------------------------------------------
+;
+;
+domain dmz.acme.com
+search dmz.acme.com
+
+nameserver 192.168.0.111
+nameserver 192.168.0.141
+nameserver 192.168.0.112
+nameserver 192.168.0.140
+attempts:1
+timeout:2
+
+
+
+
